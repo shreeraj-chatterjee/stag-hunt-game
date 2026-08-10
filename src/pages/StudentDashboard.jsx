@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import PayoffMatrix from '../components/PayoffMatrix';
 import { Send, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
@@ -31,84 +35,109 @@ export default function StudentDashboard() {
   if (!joined) {
     return (
       <div className="home-container">
-        <div className="glass-card" style={{ maxWidth: '400px', width: '100%' }}>
-          <h2>Join Room</h2>
-          <form onSubmit={handleJoin}>
-            <input 
-              placeholder="Room Code (e.g. 4829)" 
-              value={roomCode} 
-              onChange={e => setRoomCode(e.target.value)} 
-              required
-            />
-            <input 
-              placeholder="Your Nickname" 
-              value={nickname} 
-              onChange={e => setNickname(e.target.value)} 
-              required
-            />
-            <select value={team} onChange={e => setTeam(e.target.value)}>
-              {['Team A', 'Team B', 'Team C', 'Team D'].map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-            <button type="submit" style={{ width: '100%' }}>Enter Game</button>
-          </form>
-        </div>
+        <Card className="glass-card w-full max-w-[400px]">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Join Room</CardTitle>
+            <CardDescription className="text-center">Enter your details to join the simulation</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleJoin} className="space-y-4">
+              <Input 
+                placeholder="Room Code (e.g. 4829)" 
+                value={roomCode} 
+                onChange={e => setRoomCode(e.target.value)} 
+                required
+                className="bg-white/90"
+              />
+              <Input 
+                placeholder="Your Nickname" 
+                value={nickname} 
+                onChange={e => setNickname(e.target.value)} 
+                required
+                className="bg-white/90"
+              />
+              <Select value={team} onValueChange={setTeam}>
+                <SelectTrigger className="w-full bg-white/90">
+                  <SelectValue placeholder="Select Team" />
+                </SelectTrigger>
+                <SelectContent>
+                  {['Team A', 'Team B', 'Team C', 'Team D'].map(t => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="submit" className="w-full mt-4">Enter Game</Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h2>Round {currentRound}</h2>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <span>{nickname} | {team}</span>
-          <button onClick={() => navigate('/')} style={{ padding: '0.5rem', background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)' }}>
-            <LogOut size={16} /> Leave
-          </button>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent m-0">
+          Round {currentRound}
+        </h2>
+        <div className="flex gap-4 items-center">
+          <span className="font-medium bg-white/50 px-3 py-1 rounded-full border shadow-sm">
+            {nickname} | {team}
+          </span>
+          <Button variant="outline" size="sm" onClick={() => navigate('/')} className="text-destructive border-destructive hover:bg-destructive/10">
+            <LogOut size={16} className="mr-2" /> Leave
+          </Button>
         </div>
       </div>
       
       <div className="dashboard-grid">
-        <div className="glass-card">
-          <h3>Your Decision</h3>
-          <p className="text-muted" style={{ marginBottom: '1.5rem' }}>Select your effort level for this round (1 = lowest risk, 7 = highest risk/reward).</p>
-          
-          {!submitted ? (
-            <>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                <input 
-                  type="range" 
-                  min="1" max="7" 
-                  value={effort} 
-                  onChange={e => setEffort(parseInt(e.target.value))}
-                  style={{ flex: 1 }}
-                />
-                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>{effort}</span>
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle>Your Decision</CardTitle>
+            <CardDescription>Select your effort level for this round (1 = lowest risk, 7 = highest risk/reward).</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!submitted ? (
+              <div className="space-y-6 mt-4">
+                <div className="flex items-center gap-6">
+                  <input 
+                    type="range" 
+                    min="1" max="7" 
+                    value={effort} 
+                    onChange={e => setEffort(parseInt(e.target.value))}
+                    className="flex-1 accent-primary h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <span className="text-4xl font-bold text-accent min-w-[2rem] text-center">{effort}</span>
+                </div>
+                <Button onClick={handleSubmitEffort} className="w-full text-lg h-12 shadow-md shadow-primary/20">
+                  Submit Effort <Send size={18} className="ml-2" />
+                </Button>
               </div>
-              <button onClick={handleSubmitEffort} style={{ width: '100%' }}>
-                Submit Effort <Send size={18} />
-              </button>
-            </>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-              <h3 style={{ color: 'var(--success)' }}>Effort Submitted!</h3>
-              <p>You chose level {effort}. Waiting for other team members and professor to end the round...</p>
-              
-              <div style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(0,0,0,0.2)', borderRadius: '0.5rem' }}>
-                <p className="text-muted" style={{ fontSize: '0.875rem' }}>Mock Result Preview</p>
-                <p>Team Minimum: {mockMinEffort}</p>
-                <p style={{ fontSize: '1.5rem', color: 'var(--accent)', marginTop: '0.5rem' }}>
-                  Payoff: {60 - 10 * effort + 20 * mockMinEffort}
-                </p>
+            ) : (
+              <div className="text-center py-8 animate-in zoom-in duration-300">
+                <h3 className="text-2xl font-bold text-green-600 mb-2">Effort Submitted!</h3>
+                <p className="text-muted-foreground">You chose level {effort}. Waiting for other team members and professor to end the round...</p>
+                
+                <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
+                  <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Mock Result Preview</p>
+                  <p className="text-lg">Team Minimum: <strong>{mockMinEffort}</strong></p>
+                  <p className="text-3xl font-bold text-accent mt-2">
+                    Payoff: {60 - 10 * effort + 20 * mockMinEffort}
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </CardContent>
+        </Card>
         
-        <div className="glass-card">
-          <h3>Payoff Matrix</h3>
-          <PayoffMatrix currentEffort={submitted ? effort : null} currentMinEffort={submitted ? mockMinEffort : null} />
-        </div>
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle>Payoff Matrix</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PayoffMatrix currentEffort={submitted ? effort : null} currentMinEffort={submitted ? mockMinEffort : null} />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Play, Square, Download, Trash2, Home } from 'lucide-react';
+import { Play, Square, Download, Trash2, Home, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
@@ -26,68 +28,85 @@ export default function ProfessorDashboard() {
   if (!activeSession) {
     return (
       <div className="home-container">
-        <div className="glass-card" style={{ textAlign: 'center' }}>
-          <h2>Professor Admin</h2>
-          <p className="text-muted" style={{ marginBottom: '2rem' }}>Create a new session to invite students.</p>
-          <button onClick={handleCreateRoom} style={{ width: '100%' }}>Create New Room</button>
-          <button onClick={() => navigate('/')} style={{ marginTop: '1rem', background: 'transparent', width: '100%' }}>
-            <Home size={18} /> Back to Home
-          </button>
-        </div>
+        <Card className="glass-card w-full max-w-[400px]">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Professor Admin</CardTitle>
+            <CardDescription className="text-center">Create a new session to invite students.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <Button onClick={handleCreateRoom} size="lg" className="w-full text-lg shadow-md shadow-primary/20">
+              Create New Room
+            </Button>
+            <Button variant="ghost" onClick={() => navigate('/')} className="w-full text-muted-foreground hover:text-foreground">
+              <Home size={18} className="mr-2" /> Back to Home
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1>Room: <span style={{ color: 'var(--accent)' }}>{roomCode}</span></h1>
-          <p className="text-muted">Status: {status.replace('_', ' ').toUpperCase()} | Round: {currentRound}</p>
+          <h1 className="m-0 text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+            Room: {roomCode}
+          </h1>
+          <p className="text-muted-foreground font-medium mt-1 uppercase tracking-wider text-sm">
+            Status: <span className="text-primary font-bold">{status.replace('_', ' ')}</span> | Round: <span className="text-primary font-bold">{currentRound}</span>
+          </p>
         </div>
         
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div className="flex flex-wrap gap-3">
           {status !== 'in_progress' ? (
-            <button onClick={() => { setStatus('in_progress'); setCurrentRound(r => r + 1); }}>
-              <Play size={18} /> Start Round {currentRound + 1}
-            </button>
+            <Button onClick={() => { setStatus('in_progress'); setCurrentRound(r => r + 1); }} className="shadow-md shadow-primary/20 bg-primary hover:bg-primary/90">
+              <Play size={18} className="mr-2" /> Start Round {currentRound + 1}
+            </Button>
           ) : (
-            <button style={{ background: 'var(--danger)' }} onClick={() => setStatus('ended')}>
-              <Square size={18} /> End Round {currentRound}
-            </button>
+            <Button variant="destructive" onClick={() => setStatus('ended')} className="shadow-md shadow-destructive/20">
+              <Square size={18} className="mr-2" /> End Round {currentRound}
+            </Button>
           )}
-          <button style={{ background: 'transparent', border: '1px solid var(--text-muted)' }}>
-            <Download size={18} /> Export Data
-          </button>
-          <button style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)' }} onClick={() => setActiveSession(false)}>
-            <Trash2 size={18} /> Close Session
-          </button>
+          <Button variant="outline" className="bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10">
+            <Download size={18} className="mr-2" /> Export Data
+          </Button>
+          <Button variant="outline" className="bg-white/50 backdrop-blur-sm border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setActiveSession(false)}>
+            <Trash2 size={18} className="mr-2" /> Close Session
+          </Button>
         </div>
       </div>
       
       <div className="dashboard-grid">
-        <div className="glass-card" style={{ gridColumn: '1 / -1' }}>
-          <h3>Team Real-Time Status</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
-            {Object.entries(mockTeams).map(([team, data]) => (
-              <div key={team} style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: '0.5rem', borderLeft: '4px solid var(--primary)' }}>
-                <h4 style={{ margin: 0, fontSize: '1.25rem' }}>{team}</h4>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
-                  <div>
-                    <p className="text-muted" style={{ fontSize: '0.875rem' }}>Members</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{data.members}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted" style={{ fontSize: '0.875rem' }}>Current Min Effort</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--accent)' }}>
-                      {status === 'in_progress' ? '?' : data.min}
-                    </p>
+        <Card className="glass-card col-span-full">
+          <CardHeader>
+            <CardTitle>Team Real-Time Status</CardTitle>
+            <CardDescription>Monitor team progress and choices for the current round.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(mockTeams).map(([team, data]) => (
+                <div key={team} className="bg-white/60 backdrop-blur-md p-6 rounded-xl border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
+                  <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <Users size={20} className="text-primary" /> {team}
+                  </h4>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Members</p>
+                      <p className="text-3xl font-bold">{data.members}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Current Min</p>
+                      <p className="text-4xl font-black text-accent">
+                        {status === 'in_progress' ? '?' : data.min}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
