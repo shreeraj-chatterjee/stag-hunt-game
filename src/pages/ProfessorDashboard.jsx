@@ -85,7 +85,7 @@ export default function ProfessorDashboard() {
                   </div>
                 </div>
               </div>
-            )}
+            ))}
           </div>
         </div>
       </div>
