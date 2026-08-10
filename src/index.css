@@ -1,11 +1,10 @@
 :root {
   --primary: #6366f1;
   --primary-hover: #4f46e5;
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
-  --text-light: #f8fafc;
-  --text-muted: #94a3b8;
-  --accent: #22d3ee;
+  --bg-main: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
   --danger: #ef4444;
   --success: #22c55e;
 }
@@ -18,8 +17,9 @@
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-light);
+  /* A beautiful, subtle light gradient for the background */
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 100%);
+  color: var(--text-main);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -32,13 +32,15 @@ body {
   width: 100%;
 }
 
+/* Light mode frosted glass effect */
 .glass-card {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 1rem;
   padding: 2rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
 h1, h2, h3 {
@@ -67,28 +69,32 @@ button {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.39);
 }
 
 button:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
 }
 
 input, select {
   width: 100%;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: white;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text-main);
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
   margin-bottom: 1rem;
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 }
 
 input:focus, select:focus {
   border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
 .matrix-table {
@@ -99,23 +105,23 @@ input:focus, select:focus {
 }
 
 .matrix-table th, .matrix-table td {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   padding: 0.5rem;
   text-align: center;
 }
 
 .matrix-table th {
-  background: rgba(99, 102, 241, 0.2);
-  color: var(--accent);
+  background: rgba(99, 102, 241, 0.05);
+  color: var(--primary);
 }
 
 .matrix-table .impossible {
-  background: rgba(239, 68, 68, 0.1);
-  color: rgba(255, 255, 255, 0.2);
+  background: rgba(239, 68, 68, 0.05);
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .matrix-table .highlighted {
-  background: rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.1);
   font-weight: bold;
   border: 2px solid var(--success);
 }
@@ -146,8 +152,7 @@ input:focus, select:focus {
 
 .role-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  border-color: var(--primary);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* Dashboard Grids */
