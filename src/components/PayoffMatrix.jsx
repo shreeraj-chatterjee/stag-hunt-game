@@ -12,7 +12,7 @@ export default function PayoffMatrix({ currentEffort, currentMinEffort }) {
   const effortLevels = [7, 6, 5, 4, 3, 2, 1];
   
   const calculatePayoff = (e, m) => {
-    if (e < m) return '***'; // Impossible state
+    if (e < m) return null; // Impossible state
     return 60 - 10 * e + 20 * m;
   };
 
@@ -21,22 +21,36 @@ export default function PayoffMatrix({ currentEffort, currentMinEffort }) {
       <Table>
         <TableHeader>
           <TableRow className="bg-primary/5 hover:bg-primary/5">
-            <TableHead className="font-bold text-primary text-center border-r border-b">Your Effort \ Team Min</TableHead>
-            {effortLevels.map(m => <TableHead key={`header-${m}`} className="text-center font-bold text-primary border-b">{m}</TableHead>)}
+            <TableHead colSpan={2} className="border-r border-b"></TableHead>
+            <TableHead colSpan={7} className="text-center font-bold text-primary border-b uppercase tracking-wider text-xs md:text-sm bg-primary/10">
+              Minimum Effort-Level chosen across teams
+            </TableHead>
+          </TableRow>
+          <TableRow className="bg-primary/5 hover:bg-primary/5">
+            <TableHead colSpan={2} className="border-r border-b"></TableHead>
+            {effortLevels.map(m => <TableHead key={`header-${m}`} className="text-center font-bold text-primary border-b border-r bg-primary/5">{m}</TableHead>)}
           </TableRow>
         </TableHeader>
         <TableBody>
-          {effortLevels.map(e => (
+          {effortLevels.map((e, index) => (
             <TableRow key={`row-${e}`}>
-              <TableCell className="font-medium text-center border-r bg-primary/5">{e}</TableCell>
+              {index === 0 && (
+                <TableCell rowSpan={7} className="font-bold text-primary bg-primary/10 border-r border-b text-center align-middle w-24 md:w-32 uppercase tracking-wider text-xs md:text-sm">
+                  Effort chosen by your team
+                </TableCell>
+              )}
+              <TableCell className="font-bold text-primary text-center border-r border-b bg-primary/5">{e}</TableCell>
               {effortLevels.map(m => {
                 const payoff = calculatePayoff(e, m);
-                const isImpossible = payoff === '***';
+                const isImpossible = payoff === null;
                 const isCurrent = e === currentEffort && m === currentMinEffort;
                 
                 let className = "text-center transition-all duration-200 border-b border-r ";
-                if (isImpossible) className += "bg-destructive/5 text-muted-foreground/40 ";
-                if (isCurrent) className += "bg-green-100 font-bold border-2 border-green-500 text-green-700 text-lg shadow-inner ";
+                if (isImpossible) {
+                  className += "bg-gray-300/50 ";
+                } else if (isCurrent) {
+                  className += "bg-green-100 font-bold border-2 border-green-500 text-green-700 text-lg shadow-inner ";
+                }
                 
                 return (
                   <TableCell key={`cell-${e}-${m}`} className={className}>
