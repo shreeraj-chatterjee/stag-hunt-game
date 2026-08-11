@@ -61,8 +61,8 @@ export default function ParticlesBackground() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        // Using a luminous, frosty white/blue instead of flat grey
-        ctx.fillStyle = `rgba(248, 250, 252, ${p.alpha})`; 
+        // Using a slate blue for contrast against the light gradient
+        ctx.fillStyle = `rgba(100, 116, 139, ${p.alpha})`; 
         ctx.fill();
       });
 
@@ -82,7 +82,7 @@ export default function ParticlesBackground() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none opacity-80"
+      className="fixed top-0 left-0 w-full h-full pointer-events-none opacity-80"
     />
   );
 }

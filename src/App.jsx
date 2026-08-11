@@ -8,7 +8,7 @@ function App() {
   return (
     <Router>
       <ParticlesBackground />
-      <div className="app-container">
+      <div className="app-container relative z-10">
         <Routes>
           <Route path="/" element={<StudentDashboard />} />
           <Route path="/host" element={<ProfessorDashboard />} />
