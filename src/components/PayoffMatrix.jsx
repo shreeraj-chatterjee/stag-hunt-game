@@ -21,22 +21,23 @@ export default function PayoffMatrix({ currentEffort, currentMinEffort }) {
       <Table>
         <TableHeader>
           <TableRow className="bg-primary/5 hover:bg-primary/5">
-            <TableHead colSpan={2} className="border-r border-b"></TableHead>
+            <TableHead rowSpan={2} colSpan={2} className="border-r border-b"></TableHead>
             <TableHead colSpan={7} className="text-center font-bold text-primary border-b uppercase tracking-wider text-xs md:text-sm bg-primary/10">
               Minimum Effort-Level chosen across teams
             </TableHead>
           </TableRow>
           <TableRow className="bg-primary/5 hover:bg-primary/5">
-            <TableHead colSpan={2} className="border-r border-b"></TableHead>
-            {effortLevels.map(m => <TableHead key={`header-${m}`} className="text-center font-bold text-primary border-b border-r bg-primary/5">{m}</TableHead>)}
+            {effortLevels.map(m => <TableHead key={`header-${m}`} className="text-center font-bold text-primary border-b border-r bg-primary/5 w-12 md:w-16">{m}</TableHead>)}
           </TableRow>
         </TableHeader>
         <TableBody>
           {effortLevels.map((e, index) => (
             <TableRow key={`row-${e}`}>
               {index === 0 && (
-                <TableCell rowSpan={7} className="font-bold text-primary bg-primary/10 border-r border-b text-center align-middle w-24 md:w-32 uppercase tracking-wider text-xs md:text-sm">
-                  Effort chosen by your team
+                <TableCell rowSpan={7} className="font-bold text-primary bg-primary/10 border-r border-b text-center align-middle p-2">
+                  <div className="max-w-[70px] mx-auto whitespace-normal break-words leading-tight uppercase tracking-wider text-[10px] md:text-xs">
+                    Effort chosen by your team
+                  </div>
                 </TableCell>
               )}
               <TableCell className="font-bold text-primary text-center border-r border-b bg-primary/5">{e}</TableCell>

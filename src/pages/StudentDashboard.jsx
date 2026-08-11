@@ -197,15 +197,20 @@ export default function StudentDashboard() {
             <CardContent>
               {!submitted ? (
                 <div className="space-y-6 mt-4">
-                  <div className="flex items-center gap-6">
-                    <input 
-                      type="range" 
-                      min="1" max="7" 
-                      value={effort} 
-                      onChange={e => setEffort(parseInt(e.target.value))}
-                      className="flex-1 accent-primary h-2 bg-primary/20 rounded-lg appearance-none cursor-pointer"
-                    />
-                    <span className="text-4xl font-bold text-accent min-w-[2rem] text-center">{effort}</span>
+                  <div className="flex justify-between items-center gap-2 sm:gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7].map(level => (
+                      <div
+                        key={level}
+                        onClick={() => setEffort(level)}
+                        className={`flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-xl text-lg sm:text-2xl font-bold cursor-pointer transition-all duration-200 border-2 ${
+                          effort === level
+                            ? 'bg-primary text-primary-foreground border-primary shadow-lg scale-110 z-10'
+                            : 'bg-white/50 text-muted-foreground border-transparent hover:bg-white/80 hover:border-primary/30'
+                        }`}
+                      >
+                        {level}
+                      </div>
+                    ))}
                   </div>
                   <Button onClick={handleSubmitEffort} className="w-full text-lg h-12 shadow-md shadow-primary/20">
                     Submit Effort <Send size={18} className="ml-2" />
