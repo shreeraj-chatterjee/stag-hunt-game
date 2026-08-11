@@ -123,6 +123,38 @@ export default function ProfessorDashboard() {
     }
   };
 
+  const handleExportData = () => {
+    if (!roomData) return;
+
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Round,Team,Team Effort,Minimum Effort,Payoff\n";
+
+    const rounds = Object.keys(roomData)
+      .filter(k => k.startsWith('results_round_'))
+      .map(k => parseInt(k.replace('results_round_', '')))
+      .sort((a, b) => a - b);
+
+    rounds.forEach(r => {
+      const res = roomData[`results_round_${r}`];
+      if (res) {
+        const globalMin = Math.min(...Object.values(res));
+        Object.entries(res).forEach(([team, effort]) => {
+          const payoff = 60 - 10 * effort + 20 * globalMin;
+          const cleanTeam = `"${team.replace(/"/g, '""')}"`;
+          csvContent += `${r},${cleanTeam},${effort},${globalMin},${payoff}\n`;
+        });
+      }
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `stag_hunt_results_${roomCode}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return <div className="home-container"><p className="text-muted-foreground">Loading...</p></div>;
   }
@@ -196,7 +228,7 @@ export default function ProfessorDashboard() {
               <Square size={18} className="mr-2" /> End Round {currentRound}
             </Button>
           )}
-          <Button variant="outline" className="bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10">
+          <Button variant="outline" className="bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-primary/10" onClick={handleExportData}>
             <Download size={18} className="mr-2" /> Export Data
           </Button>
           <Button variant="outline" className="bg-white/50 backdrop-blur-sm border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => setActiveSession(false)}>
