@@ -105,8 +105,8 @@ export default function StudentDashboard() {
       <div className="home-container">
         <Card className="glass-card w-full max-w-[400px]">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Join Room</CardTitle>
-            <CardDescription className="text-center">Enter your details to join the simulation</CardDescription>
+            <CardTitle className="text-2xl text-center">Team Leader Login</CardTitle>
+            <CardDescription className="text-center">Enter your details to join on behalf of your team</CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
@@ -123,7 +123,7 @@ export default function StudentDashboard() {
                 className="bg-white/90"
               />
               <Input 
-                placeholder="Your Nickname" 
+                placeholder="Leader Name" 
                 value={nickname} 
                 onChange={e => setNickname(e.target.value)} 
                 required
@@ -171,8 +171,8 @@ export default function StudentDashboard() {
         <div className="dashboard-grid">
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle>Your Decision</CardTitle>
-              <CardDescription>Select your effort level for this round (1 = lowest risk, 7 = highest risk/reward).</CardDescription>
+              <CardTitle>Team Decision</CardTitle>
+              <CardDescription>Select your team's effort level for this round (1 = lowest risk, 7 = highest risk/reward).</CardDescription>
             </CardHeader>
             <CardContent>
               {!submitted ? (
@@ -194,7 +194,7 @@ export default function StudentDashboard() {
               ) : (
                 <div className="text-center py-8 animate-in zoom-in duration-300">
                   <h3 className="text-2xl font-bold text-green-600 mb-2">Effort Submitted!</h3>
-                  <p className="text-muted-foreground">You chose level {effort}. Waiting for other team members and professor to end the round...</p>
+                  <p className="text-muted-foreground">You chose level {effort} for your team. Waiting for other teams and the professor to end the round...</p>
                   
                   {roomStatus === 'ended' && teamMinEffort !== null && (
                     <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
