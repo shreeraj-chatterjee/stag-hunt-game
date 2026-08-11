@@ -15,6 +15,7 @@ export default function ProfessorDashboard() {
   const [roomCode, setRoomCode] = useState('');
   const [status, setStatus] = useState('waiting');
   const [currentRound, setCurrentRound] = useState(0);
+  const [error, setError] = useState('');
   
   const mockTeams = {
     'Team A': { min: 5, members: 3 },
@@ -45,6 +46,7 @@ export default function ProfessorDashboard() {
   };
 
   const handleCreateRoom = async () => {
+    setError('');
     const newCode = Math.floor(1000 + Math.random() * 9000).toString();
     try {
       const roomRef = await addDoc(collection(db, "rooms"), {
@@ -61,6 +63,7 @@ export default function ProfessorDashboard() {
       setStatus('waiting');
     } catch (error) {
       console.error("Error creating room:", error);
+      setError("Failed to create room: " + error.message);
     }
   };
   
@@ -110,6 +113,11 @@ export default function ProfessorDashboard() {
             <CardDescription className="text-center">Logged in as {user.email}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
+            {error && (
+              <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-2">
+                {error}
+              </div>
+            )}
             <Button onClick={handleCreateRoom} size="lg" className="w-full text-lg shadow-md shadow-primary/20">
               Create New Room
             </Button>
@@ -125,12 +133,15 @@ export default function ProfessorDashboard() {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="m-0 text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-            Room: {roomCode}
-          </h1>
-          <p className="text-muted-foreground font-medium mt-1 uppercase tracking-wider text-sm">
-            Status: <span className="text-primary font-bold">{status.replace('_', ' ')}</span> | Round: <span className="text-primary font-bold">{currentRound}</span>
+        <div className="flex flex-col gap-2">
+          <div className="bg-white/90 border-4 border-primary rounded-xl p-4 shadow-lg inline-block">
+            <h1 className="m-0 text-5xl font-black text-primary tracking-widest text-center">
+              {roomCode}
+            </h1>
+            <p className="text-center text-xs font-bold text-muted-foreground uppercase mt-1">Room Code</p>
+          </div>
+          <p className="text-muted-foreground font-medium mt-2 uppercase tracking-wider text-sm">
+            Status: <span className={status === 'in_progress' ? 'text-green-600 font-bold' : 'text-primary font-bold'}>{status.replace('_', ' ')}</span> | Round: <span className="text-primary font-bold">{currentRound}</span>
           </p>
         </div>
         
