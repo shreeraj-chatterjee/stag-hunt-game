@@ -17,7 +17,18 @@ export default function ProfessorDashboard() {
   const [currentRound, setCurrentRound] = useState(0);
   const [error, setError] = useState('');
   const [teamsStats, setTeamsStats] = useState({});
-  const [roundResults, setRoundResults] = useState({});
+  const [roomData, setRoomData] = useState(null);
+
+  // Listen to the room document for history
+  useEffect(() => {
+    if (!roomId) return;
+    const unsubscribe = onSnapshot(doc(db, "rooms", roomId), (docSnap) => {
+      if (docSnap.exists()) {
+        setRoomData(docSnap.data());
+      }
+    });
+    return () => unsubscribe();
+  }, [roomId]);
 
   // Listen to submissions for the current round
   useEffect(() => {
@@ -102,7 +113,6 @@ export default function ProfessorDashboard() {
           minResults[team] = data.min;
         });
         updateData[`results_round_${currentRound}`] = minResults;
-        setRoundResults(prev => ({...prev, [currentRound]: minResults}));
       }
 
       await updateDoc(doc(db, "rooms", roomId), updateData);
@@ -231,6 +241,46 @@ export default function ProfessorDashboard() {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Round History */}
+      {currentRound > 0 && roomData && Object.keys(roomData).some(k => k.startsWith('results_round_')) && (
+        <Card className="glass-card col-span-full mt-6">
+          <CardHeader>
+            <CardTitle>Round History</CardTitle>
+            <CardDescription>Previous round outcomes and minimum efforts.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <div className="space-y-4">
+               {Array.from({length: currentRound}, (_, i) => i + 1).map(r => {
+                 const res = roomData[`results_round_${r}`];
+                 if (!res) return null;
+                 
+                 // Calculate global minimum for this round
+                 const globalMin = Math.min(...Object.values(res));
+                 
+                 return (
+                   <div key={r} className="p-4 bg-white/60 backdrop-blur-sm rounded-lg border-l-4 border-l-accent shadow-sm">
+                     <div className="flex justify-between items-center mb-3">
+                       <h5 className="font-bold text-lg">Round {r}</h5>
+                       <span className="text-sm font-semibold bg-accent/10 text-accent px-3 py-1 rounded-full">
+                         Global Minimum: {globalMin}
+                       </span>
+                     </div>
+                     <div className="flex gap-3 flex-wrap">
+                       {Object.entries(res).map(([team, min]) => (
+                         <div key={team} className="px-4 py-2 bg-white rounded-md border shadow-sm flex flex-col items-center">
+                           <span className="text-xs text-muted-foreground uppercase font-bold">{team}</span>
+                           <span className="text-xl font-black text-primary">{min}</span>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 );
+               }).reverse()}
+             </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
