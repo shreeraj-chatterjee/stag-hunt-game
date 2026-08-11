@@ -21,15 +21,17 @@ export default function StudentDashboard() {
   const [roomStatus, setRoomStatus] = useState('waiting');
   const [currentRound, setCurrentRound] = useState(0);
   const [globalMinEffort, setGlobalMinEffort] = useState(null);
+  const [roomData, setRoomData] = useState(null);
   
   // Listen to the room document once joined
   useEffect(() => {
     if (!roomId) return;
     const unsubscribe = onSnapshot(doc(db, "rooms", roomId), (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        setRoomStatus(data.status);
-        setCurrentRound(data.currentRound);
+        if (doc.exists()) {
+          const data = doc.data();
+          setRoomData(data);
+          setRoomStatus(data.status);
+          setCurrentRound(data.currentRound);
         
         // If a new round starts, reset submission state
         if (data.status === 'in_progress' && data.currentRound > currentRound) {
@@ -138,6 +140,24 @@ export default function StudentDashboard() {
     );
   }
 
+  // Calculate round history and total score
+  const roundHistory = [];
+  let totalScore = 0;
+
+  if (roomData) {
+    for (let r = 1; r <= currentRound; r++) {
+      const res = roomData[`results_round_${r}`];
+      if (res && res[nickname] !== undefined) {
+        const teamEffort = res[nickname];
+        const values = Object.values(res);
+        const globalMin = values.length > 0 ? Math.min(...values) : 7;
+        const payoff = 60 - 10 * teamEffort + 20 * globalMin;
+        totalScore += payoff;
+        roundHistory.push({ round: r, effort: teamEffort, globalMin, payoff });
+      }
+    }
+  }
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center mb-8">
@@ -209,6 +229,35 @@ export default function StudentDashboard() {
               <PayoffMatrix currentEffort={submitted ? effort : null} currentMinEffort={submitted && roomStatus === 'ended' ? globalMinEffort : null} />
             </CardContent>
           </Card>
+          
+          {roundHistory.length > 0 && (
+            <Card className="glass-card col-span-full">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div>
+                  <CardTitle>Performance History</CardTitle>
+                  <CardDescription>Your team's score across all rounds.</CardDescription>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-muted-foreground uppercase">Total Score</p>
+                  <p className="text-3xl font-black text-primary">{totalScore}</p>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 mt-4">
+                  {roundHistory.slice().reverse().map(h => (
+                    <div key={h.round} className="flex justify-between items-center p-3 bg-white/60 rounded-md border shadow-sm">
+                      <div className="font-bold">Round {h.round}</div>
+                      <div className="flex gap-4 text-sm text-muted-foreground">
+                        <span>Your Effort: <strong>{h.effort}</strong></span>
+                        <span>Global Min: <strong>{h.globalMin}</strong></span>
+                      </div>
+                      <div className="font-bold text-lg text-accent">+{h.payoff}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
     </div>
