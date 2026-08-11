@@ -1,6 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import StudentDashboard from './pages/StudentDashboard';
 import ProfessorDashboard from './pages/ProfessorDashboard';
 
@@ -9,9 +8,9 @@ function App() {
     <Router>
       <div className="app-container">
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/professor" element={<ProfessorDashboard />} />
+          <Route path="/" element={<StudentDashboard />} />
+          <Route path="/host" element={<ProfessorDashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

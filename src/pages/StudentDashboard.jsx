@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import PayoffMatrix from '../components/PayoffMatrix';
 import { Send, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function StudentDashboard() {
-  const navigate = useNavigate();
   const [joined, setJoined] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [nickname, setNickname] = useState('');
@@ -21,6 +19,12 @@ export default function StudentDashboard() {
   // Mock results
   const currentRound = 1;
   const mockMinEffort = 5; 
+  
+  const handleLeave = () => {
+    setJoined(false);
+    setRoomCode('');
+    setSubmitted(false);
+  };
   
   const handleJoin = (e) => {
     e.preventDefault();
@@ -84,7 +88,7 @@ export default function StudentDashboard() {
           <span className="font-medium bg-white/50 px-3 py-1 rounded-full border shadow-sm">
             {nickname} | {team}
           </span>
-          <Button variant="outline" size="sm" onClick={() => navigate('/')} className="text-destructive border-destructive hover:bg-destructive/10">
+          <Button variant="outline" size="sm" onClick={handleLeave} className="text-destructive border-destructive hover:bg-destructive/10">
             <LogOut size={16} className="mr-2" /> Leave
           </Button>
         </div>

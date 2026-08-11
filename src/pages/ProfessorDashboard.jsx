@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { Play, Square, Download, Trash2, Home, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Play, Square, Download, Trash2, Users } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 
 export default function ProfessorDashboard() {
-  const navigate = useNavigate();
   const [activeSession, setActiveSession] = useState(false);
   const [roomCode, setRoomCode] = useState('');
   const [status, setStatus] = useState('waiting'); // waiting, in_progress, ended
@@ -36,9 +34,6 @@ export default function ProfessorDashboard() {
           <CardContent className="flex flex-col gap-4">
             <Button onClick={handleCreateRoom} size="lg" className="w-full text-lg shadow-md shadow-primary/20">
               Create New Room
-            </Button>
-            <Button variant="ghost" onClick={() => navigate('/')} className="w-full text-muted-foreground hover:text-foreground">
-              <Home size={18} className="mr-2" /> Back to Home
             </Button>
           </CardContent>
         </Card>
