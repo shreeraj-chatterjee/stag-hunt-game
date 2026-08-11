@@ -171,6 +171,9 @@ export default function StudentDashboard() {
           Round {currentRound}
         </h2>
         <div className="flex gap-4 items-center">
+          <span className="text-sm font-bold text-muted-foreground uppercase hidden sm:inline-block">
+            Room: {roomCode}
+          </span>
           <span className="font-medium bg-white/50 px-3 py-1 rounded-full border shadow-sm">
             {nickname}
           </span>
