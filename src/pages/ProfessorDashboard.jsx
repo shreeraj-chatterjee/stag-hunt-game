@@ -224,12 +224,8 @@ export default function ProfessorDashboard() {
                     <Users size={20} className="text-primary" /> {team}
                   </h4>
                   <div className="flex justify-between items-end">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Submitted</p>
-                      <p className="text-3xl font-bold">{data.members}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Current Min</p>
+                    <div className="text-right w-full">
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Effort</p>
                       <p className="text-4xl font-black text-accent">
                         {status === 'in_progress' ? '?' : data.min}
                       </p>
@@ -263,7 +259,7 @@ export default function ProfessorDashboard() {
                      <div className="flex justify-between items-center mb-3">
                        <h5 className="font-bold text-lg">Round {r}</h5>
                        <span className="text-sm font-semibold bg-accent/10 text-accent px-3 py-1 rounded-full">
-                         Global Minimum: {globalMin}
+                         Minimum Effort: {globalMin}
                        </span>
                      </div>
                      <div className="flex gap-3 flex-wrap">

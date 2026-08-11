@@ -210,7 +210,7 @@ export default function StudentDashboard() {
                   {roomStatus === 'ended' && globalMinEffort !== null && (
                     <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
                       <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Round Result</p>
-                      <p className="text-lg">Global Minimum Effort: <strong>{globalMinEffort}</strong></p>
+                      <p className="text-lg">Minimum Effort: <strong>{globalMinEffort}</strong></p>
                       <p className="text-3xl font-bold text-accent mt-2">
                         Payoff: {60 - 10 * effort + 20 * globalMinEffort}
                       </p>
@@ -248,8 +248,8 @@ export default function StudentDashboard() {
                     <div key={h.round} className="flex justify-between items-center p-3 bg-white/60 rounded-md border shadow-sm">
                       <div className="font-bold">Round {h.round}</div>
                       <div className="flex gap-4 text-sm text-muted-foreground">
-                        <span>Your Effort: <strong>{h.effort}</strong></span>
-                        <span>Global Min: <strong>{h.globalMin}</strong></span>
+                        <span>Team Effort: <strong>{h.effort}</strong></span>
+                        <span>Minimum Effort: <strong>{h.globalMin}</strong></span>
                       </div>
                       <div className="font-bold text-lg text-accent">+{h.payoff}</div>
                     </div>
