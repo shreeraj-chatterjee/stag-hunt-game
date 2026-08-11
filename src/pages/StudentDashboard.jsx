@@ -6,7 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { db } from '../firebase';
-import { collection, query, where, getDocs, onSnapshot, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot, addDoc, serverTimestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 export default function StudentDashboard() {
   const [joined, setJoined] = useState(false);
@@ -73,6 +73,12 @@ export default function StudentDashboard() {
       
       if (!querySnapshot.empty) {
         const roomDoc = querySnapshot.docs[0];
+        
+        // Add team to the room's joinedTeams array
+        await updateDoc(roomDoc.ref, {
+          joinedTeams: arrayUnion(nickname)
+        });
+
         setRoomId(roomDoc.id);
         setRoomStatus(roomDoc.data().status);
         setCurrentRound(roomDoc.data().currentRound);

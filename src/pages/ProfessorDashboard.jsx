@@ -84,7 +84,8 @@ export default function ProfessorDashboard() {
         professorId: user.uid,
         status: 'waiting',
         currentRound: 0,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        joinedTeams: []
       });
       setRoomId(roomRef.id);
       setRoomCode(newCode);
@@ -240,6 +241,26 @@ export default function ProfessorDashboard() {
       </div>
       
       <div className="dashboard-grid">
+        <Card className="glass-card col-span-full mb-2">
+          <CardHeader>
+            <CardTitle>Teams in Room</CardTitle>
+            <CardDescription>Teams that have successfully joined using the room code.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {roomData?.joinedTeams && roomData.joinedTeams.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
+                {roomData.joinedTeams.map((team, idx) => (
+                  <div key={idx} className="bg-primary/10 border border-primary/20 text-primary font-bold px-4 py-2 rounded-full flex items-center gap-2">
+                    <Users size={16} /> {team}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-muted-foreground text-center py-4">Waiting for teams to join...</div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="glass-card col-span-full">
           <CardHeader className="flex flex-row justify-between items-center">
             <div>
