@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { auth, db } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
-import { collection, addDoc, doc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, onSnapshot, serverTimestamp, query, where } from 'firebase/firestore';
 
 export default function ProfessorDashboard() {
   const [user, setUser] = useState(null);
@@ -16,12 +16,30 @@ export default function ProfessorDashboard() {
   const [status, setStatus] = useState('waiting');
   const [currentRound, setCurrentRound] = useState(0);
   const [error, setError] = useState('');
-  
-  const mockTeams = {
-    'Team A': { min: 5, members: 3 },
-    'Team B': { min: 7, members: 4 },
-    'Team C': { min: 2, members: 3 }
-  };
+  const [teamsStats, setTeamsStats] = useState({});
+  const [roundResults, setRoundResults] = useState({});
+
+  // Listen to submissions for the current round
+  useEffect(() => {
+    if (!roomId) return;
+    const q = query(collection(db, "rooms", roomId, "submissions"), where("round", "==", currentRound));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const stats = {};
+      snapshot.docs.forEach(docSnap => {
+        const data = docSnap.data();
+        const t = data.team;
+        if (!stats[t]) {
+          stats[t] = { members: 0, min: 7 };
+        }
+        stats[t].members += 1;
+        if (data.effort < stats[t].min) {
+          stats[t].min = data.effort;
+        }
+      });
+      setTeamsStats(stats);
+    });
+    return () => unsubscribe();
+  }, [roomId, currentRound]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -71,10 +89,23 @@ export default function ProfessorDashboard() {
     if (!roomId) return;
     try {
       const nextRound = currentRound + roundDelta;
-      await updateDoc(doc(db, "rooms", roomId), {
+      
+      const updateData = {
         status: newStatus,
         currentRound: nextRound
-      });
+      };
+
+      // If we are ending the round, save the team minimums to the room document so students can see their payoff
+      if (newStatus === 'ended') {
+        const minResults = {};
+        Object.entries(teamsStats).forEach(([team, data]) => {
+          minResults[team] = data.min;
+        });
+        updateData[`results_round_${currentRound}`] = minResults;
+        setRoundResults(prev => ({...prev, [currentRound]: minResults}));
+      }
+
+      await updateDoc(doc(db, "rooms", roomId), updateData);
       setStatus(newStatus);
       setCurrentRound(nextRound);
     } catch (error) {
@@ -172,14 +203,19 @@ export default function ProfessorDashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.entries(mockTeams).map(([team, data]) => (
+              {Object.keys(teamsStats).length === 0 ? (
+                <div className="col-span-full text-center py-10 text-muted-foreground">
+                  No submissions yet for Round {currentRound}.
+                </div>
+              ) : (
+                Object.entries(teamsStats).map(([team, data]) => (
                 <div key={team} className="bg-white/60 backdrop-blur-md p-6 rounded-xl border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
                   <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <Users size={20} className="text-primary" /> {team}
                   </h4>
                   <div className="flex justify-between items-end">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Members</p>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Submitted</p>
                       <p className="text-3xl font-bold">{data.members}</p>
                     </div>
                     <div className="text-right">
@@ -190,7 +226,7 @@ export default function ProfessorDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </CardContent>
         </Card>
