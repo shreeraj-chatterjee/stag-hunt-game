@@ -250,21 +250,28 @@ export default function ProfessorDashboard() {
                   No submissions yet for Round {currentRound}.
                 </div>
               ) : (
-                Object.entries(teamsStats).map(([team, data]) => (
+                Object.entries(teamsStats).map(([team, data]) => {
+                  const currentGlobalMin = status === 'in_progress' ? '?' : 
+                    (Object.keys(teamsStats).length > 0 ? Math.min(...Object.values(teamsStats).map(t => t.min)) : '?');
+                  return (
                 <div key={team} className="bg-white/60 backdrop-blur-md p-6 rounded-xl border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
                   <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
                     <Users size={20} className="text-primary" /> {team}
                   </h4>
                   <div className="flex justify-between items-end">
-                    <div className="text-right w-full">
+                    <div>
                       <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Effort</p>
+                      <p className="text-3xl font-bold">{status === 'in_progress' ? '?' : data.min}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Minimum Effort</p>
                       <p className="text-4xl font-black text-accent">
-                        {status === 'in_progress' ? '?' : data.min}
+                        {currentGlobalMin}
                       </p>
                     </div>
                   </div>
                 </div>
-              )))}
+              )}))}
             </div>
           </CardContent>
         </Card>
