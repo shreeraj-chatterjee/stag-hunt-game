@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Square, Download, Trash2, Users, LogIn, LogOut } from 'lucide-react';
+import { Play, Square, Download, Trash2, Users, LogIn, LogOut, Eye, EyeOff } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { auth, db } from '../firebase';
@@ -18,6 +18,7 @@ export default function ProfessorDashboard() {
   const [error, setError] = useState('');
   const [teamsStats, setTeamsStats] = useState({});
   const [roomData, setRoomData] = useState(null);
+  const [revealLive, setRevealLive] = useState(false);
 
   // Listen to the room document for history
   useEffect(() => {
@@ -118,6 +119,7 @@ export default function ProfessorDashboard() {
       await updateDoc(doc(db, "rooms", roomId), updateData);
       setStatus(newStatus);
       setCurrentRound(nextRound);
+      if (newStatus === 'in_progress') setRevealLive(false);
     } catch (error) {
       console.error("Error updating room:", error);
     }
@@ -239,9 +241,16 @@ export default function ProfessorDashboard() {
       
       <div className="dashboard-grid">
         <Card className="glass-card col-span-full">
-          <CardHeader>
-            <CardTitle>Team Real-Time Status</CardTitle>
-            <CardDescription>Monitor team progress and choices for the current round.</CardDescription>
+          <CardHeader className="flex flex-row justify-between items-center">
+            <div>
+              <CardTitle>Team Real-Time Status</CardTitle>
+              <CardDescription>Monitor team progress and choices for the current round.</CardDescription>
+            </div>
+            {status === 'in_progress' && (
+              <Button variant="outline" size="sm" onClick={() => setRevealLive(!revealLive)}>
+                {revealLive ? <><EyeOff size={16} className="mr-2" /> Hide Live Data</> : <><Eye size={16} className="mr-2" /> Reveal Live Data</>}
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -251,8 +260,10 @@ export default function ProfessorDashboard() {
                 </div>
               ) : (
                 Object.entries(teamsStats).map(([team, data]) => {
-                  const currentGlobalMin = status === 'in_progress' ? '?' : 
-                    (Object.keys(teamsStats).length > 0 ? Math.min(...Object.values(teamsStats).map(t => t.min)) : '?');
+                  const actualGlobalMin = Object.keys(teamsStats).length > 0 ? Math.min(...Object.values(teamsStats).map(t => t.min)) : '?';
+                  const displayGlobalMin = (status === 'in_progress' && !revealLive) ? '?' : actualGlobalMin;
+                  const displayEffort = (status === 'in_progress' && !revealLive) ? '?' : data.min;
+
                   return (
                 <div key={team} className="bg-white/60 backdrop-blur-md p-6 rounded-xl border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
                   <h4 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -261,12 +272,12 @@ export default function ProfessorDashboard() {
                   <div className="flex justify-between items-end">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Effort</p>
-                      <p className="text-3xl font-bold">{status === 'in_progress' ? '?' : data.min}</p>
+                      <p className="text-3xl font-bold">{displayEffort}</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Minimum Effort</p>
                       <p className="text-4xl font-black text-accent">
-                        {currentGlobalMin}
+                        {displayGlobalMin}
                       </p>
                     </div>
                   </div>
