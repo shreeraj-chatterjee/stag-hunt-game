@@ -1,39 +1,120 @@
-import React, { useState } from 'react';
-import { Play, Square, Download, Trash2, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Square, Download, Trash2, Users, LogIn, LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { auth, db } from '../firebase';
+import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from 'firebase/auth';
+import { collection, addDoc, doc, updateDoc, onSnapshot, serverTimestamp } from 'firebase/firestore';
 
 export default function ProfessorDashboard() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
   const [activeSession, setActiveSession] = useState(false);
+  const [roomId, setRoomId] = useState(null);
   const [roomCode, setRoomCode] = useState('');
-  const [status, setStatus] = useState('waiting'); // waiting, in_progress, ended
+  const [status, setStatus] = useState('waiting');
   const [currentRound, setCurrentRound] = useState(0);
   
-  // Mock data for UI layout testing
   const mockTeams = {
     'Team A': { min: 5, members: 3 },
     'Team B': { min: 7, members: 4 },
     'Team C': { min: 2, members: 3 }
   };
-  
-  const handleCreateRoom = () => {
-    setRoomCode(Math.floor(1000 + Math.random() * 9000).toString());
-    setActiveSession(true);
-    setCurrentRound(0);
-    setStatus('waiting');
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setActiveSession(false);
+  };
+
+  const handleCreateRoom = async () => {
+    const newCode = Math.floor(1000 + Math.random() * 9000).toString();
+    try {
+      const roomRef = await addDoc(collection(db, "rooms"), {
+        code: newCode,
+        professorId: user.uid,
+        status: 'waiting',
+        currentRound: 0,
+        createdAt: serverTimestamp()
+      });
+      setRoomId(roomRef.id);
+      setRoomCode(newCode);
+      setActiveSession(true);
+      setCurrentRound(0);
+      setStatus('waiting');
+    } catch (error) {
+      console.error("Error creating room:", error);
+    }
   };
   
+  const updateRoomStatus = async (newStatus, roundDelta = 0) => {
+    if (!roomId) return;
+    try {
+      const nextRound = currentRound + roundDelta;
+      await updateDoc(doc(db, "rooms", roomId), {
+        status: newStatus,
+        currentRound: nextRound
+      });
+      setStatus(newStatus);
+      setCurrentRound(nextRound);
+    } catch (error) {
+      console.error("Error updating room:", error);
+    }
+  };
+
+  if (loading) {
+    return <div className="home-container"><p className="text-muted-foreground">Loading...</p></div>;
+  }
+
+  if (!user) {
+    return (
+      <div className="home-container">
+        <Card className="glass-card w-full max-w-[400px]">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">Professor Login</CardTitle>
+            <CardDescription className="text-center">Sign in to manage your classroom simulations.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={handleLogin} className="w-full text-lg shadow-md">
+              <LogIn size={18} className="mr-2" /> Sign In with Google
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!activeSession) {
     return (
       <div className="home-container">
         <Card className="glass-card w-full max-w-[400px]">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Professor Admin</CardTitle>
-            <CardDescription className="text-center">Create a new session to invite students.</CardDescription>
+            <CardDescription className="text-center">Logged in as {user.email}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <Button onClick={handleCreateRoom} size="lg" className="w-full text-lg shadow-md shadow-primary/20">
               Create New Room
+            </Button>
+            <Button variant="ghost" onClick={handleLogout} className="w-full text-destructive hover:bg-destructive/10">
+              <LogOut size={18} className="mr-2" /> Sign Out
             </Button>
           </CardContent>
         </Card>
@@ -55,11 +136,11 @@ export default function ProfessorDashboard() {
         
         <div className="flex flex-wrap gap-3">
           {status !== 'in_progress' ? (
-            <Button onClick={() => { setStatus('in_progress'); setCurrentRound(r => r + 1); }} className="shadow-md shadow-primary/20 bg-primary hover:bg-primary/90">
+            <Button onClick={() => updateRoomStatus('in_progress', 1)} className="shadow-md shadow-primary/20 bg-primary hover:bg-primary/90">
               <Play size={18} className="mr-2" /> Start Round {currentRound + 1}
             </Button>
           ) : (
-            <Button variant="destructive" onClick={() => setStatus('ended')} className="shadow-md shadow-destructive/20">
+            <Button variant="destructive" onClick={() => updateRoomStatus('ended', 0)} className="shadow-md shadow-destructive/20">
               <Square size={18} className="mr-2" /> End Round {currentRound}
             </Button>
           )}
