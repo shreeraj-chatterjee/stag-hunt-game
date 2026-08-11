@@ -13,7 +13,6 @@ export default function StudentDashboard() {
   const [roomCode, setRoomCode] = useState('');
   const [roomId, setRoomId] = useState(null);
   const [nickname, setNickname] = useState('');
-  const [team, setTeam] = useState('Team A');
   const [error, setError] = useState('');
   
   // Game state
@@ -91,7 +90,7 @@ export default function StudentDashboard() {
       await addDoc(collection(db, "rooms", roomId, "submissions"), {
         round: currentRound,
         nickname,
-        team,
+        team: nickname, // The leader's name is their unique team identifier
         effort,
         timestamp: serverTimestamp()
       });
@@ -125,22 +124,12 @@ export default function StudentDashboard() {
                 className="bg-white/90"
               />
               <Input 
-                placeholder="Leader Name" 
+                placeholder="Leader Name / Team Name" 
                 value={nickname} 
                 onChange={e => setNickname(e.target.value)} 
                 required
                 className="bg-white/90"
               />
-              <Select value={team} onValueChange={setTeam}>
-                <SelectTrigger className="w-full bg-white/90">
-                  <SelectValue placeholder="Select Team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {['Team A', 'Team B', 'Team C', 'Team D'].map(t => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <Button type="submit" className="w-full mt-4">Enter Game</Button>
             </form>
           </CardContent>
@@ -157,7 +146,7 @@ export default function StudentDashboard() {
         </h2>
         <div className="flex gap-4 items-center">
           <span className="font-medium bg-white/50 px-3 py-1 rounded-full border shadow-sm">
-            {nickname} | {team}
+            {nickname}
           </span>
           <Button variant="outline" size="sm" onClick={handleLeave} className="text-destructive border-destructive hover:bg-destructive/10">
             <LogOut size={16} className="mr-2" /> Leave
