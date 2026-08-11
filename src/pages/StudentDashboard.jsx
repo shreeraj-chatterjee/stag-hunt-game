@@ -21,7 +21,7 @@ export default function StudentDashboard() {
   const [submitted, setSubmitted] = useState(false);
   const [roomStatus, setRoomStatus] = useState('waiting');
   const [currentRound, setCurrentRound] = useState(0);
-  const [teamMinEffort, setTeamMinEffort] = useState(null);
+  const [globalMinEffort, setGlobalMinEffort] = useState(null);
   
   // Listen to the room document once joined
   useEffect(() => {
@@ -35,13 +35,15 @@ export default function StudentDashboard() {
         // If a new round starts, reset submission state
         if (data.status === 'in_progress' && data.currentRound > currentRound) {
           setSubmitted(false);
-          setTeamMinEffort(null);
+          setGlobalMinEffort(null);
         }
         
-        // If round ends, fetch the minimum effort for their team
+        // If round ends, fetch the global minimum effort across all teams
         if (data.status === 'ended' && data[`results_round_${data.currentRound}`]) {
           const results = data[`results_round_${data.currentRound}`];
-          setTeamMinEffort(results[team] !== undefined ? results[team] : 7); // Default to 7 if no submissions
+          const values = Object.values(results);
+          const globalMin = values.length > 0 ? Math.min(...values) : 7;
+          setGlobalMinEffort(globalMin);
         }
       } else {
         setError("Room was closed by the professor.");
@@ -196,12 +198,12 @@ export default function StudentDashboard() {
                   <h3 className="text-2xl font-bold text-green-600 mb-2">Effort Submitted!</h3>
                   <p className="text-muted-foreground">You chose level {effort} for your team. Waiting for other teams and the professor to end the round...</p>
                   
-                  {roomStatus === 'ended' && teamMinEffort !== null && (
+                  {roomStatus === 'ended' && globalMinEffort !== null && (
                     <div className="mt-8 p-6 bg-primary/5 rounded-xl border border-primary/10 shadow-inner">
                       <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-2">Round Result</p>
-                      <p className="text-lg">Team Minimum Effort: <strong>{teamMinEffort}</strong></p>
+                      <p className="text-lg">Global Minimum Effort: <strong>{globalMinEffort}</strong></p>
                       <p className="text-3xl font-bold text-accent mt-2">
-                        Payoff: {60 - 10 * effort + 20 * teamMinEffort}
+                        Payoff: {60 - 10 * effort + 20 * globalMinEffort}
                       </p>
                     </div>
                   )}
@@ -215,7 +217,7 @@ export default function StudentDashboard() {
               <CardTitle>Payoff Matrix</CardTitle>
             </CardHeader>
             <CardContent>
-              <PayoffMatrix currentEffort={submitted ? effort : null} currentMinEffort={submitted && roomStatus === 'ended' ? teamMinEffort : null} />
+              <PayoffMatrix currentEffort={submitted ? effort : null} currentMinEffort={submitted && roomStatus === 'ended' ? globalMinEffort : null} />
             </CardContent>
           </Card>
         </div>
