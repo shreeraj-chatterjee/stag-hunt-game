@@ -17,17 +17,22 @@ export default function ParticlesBackground() {
 
     const initParticles = () => {
       particles = [];
-      // Calculate particle count based on screen area to keep density consistent
-      const numParticles = Math.floor((window.innerWidth * window.innerHeight) / 10000); 
+      // Double the density for a lusher, more volumetric feel
+      const numParticles = Math.floor((window.innerWidth * window.innerHeight) / 5000); 
       
       for (let i = 0; i < numParticles; i++) {
+        // Create depth of field: some particles are bigger but fainter (foreground), some tiny (background)
+        const isForeground = Math.random() > 0.8;
+        const radius = isForeground ? Math.random() * 2.5 + 1.5 : Math.random() * 1.5 + 0.5;
+        const baseAlpha = isForeground ? 0.1 : 0.3;
+        
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          radius: Math.random() * 1.5 + 0.5,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          alpha: Math.random() * 0.3 + 0.1 
+          radius: radius,
+          vx: (Math.random() - 0.5) * 0.2, // Slower base velocity
+          vy: (Math.random() - 0.5) * 0.2,
+          alpha: Math.random() * 0.2 + baseAlpha
         });
       }
     };
@@ -47,17 +52,17 @@ export default function ParticlesBackground() {
         if (p.y > canvas.height) p.y = 0;
 
         // Random jitter (Simulating Brownian motion)
-        p.vx += (Math.random() - 0.5) * 0.05;
-        p.vy += (Math.random() - 0.5) * 0.05;
+        p.vx += (Math.random() - 0.5) * 0.02; // Gentler jitter
+        p.vy += (Math.random() - 0.5) * 0.02;
         
-        // Constrain maximum velocity so it's a slow drift, not crazy flying
-        p.vx = Math.max(-0.5, Math.min(0.5, p.vx));
-        p.vy = Math.max(-0.5, Math.min(0.5, p.vy));
+        // Constrain maximum velocity so it's a very lazy, slow drift
+        p.vx = Math.max(-0.25, Math.min(0.25, p.vx));
+        p.vy = Math.max(-0.25, Math.min(0.25, p.vy));
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        // Using slate-400 equivalent for the dust
-        ctx.fillStyle = `rgba(148, 163, 184, ${p.alpha})`; 
+        // Using a luminous, frosty white/blue instead of flat grey
+        ctx.fillStyle = `rgba(248, 250, 252, ${p.alpha})`; 
         ctx.fill();
       });
 
